@@ -6,7 +6,7 @@ import some from 'lodash/some';
 
 const Alphabet = range(65, 91).map(n => String.fromCharCode(n));
 
-export class GridBuilder {
+export class PuzzleBuilder {
   private words: WordList;
   private grid: LetterGrid;
   private size: number;

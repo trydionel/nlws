@@ -35,12 +35,11 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { readWordList, readLetterGrid, dispatchCreateWordSearch, readWordPaths } from '@/store';
+import { readWordList, readLetterGrid, dispatchCreateWordSearch, readWordPaths, dispatchStartPath, dispatchUpdatePath, readCandidatePath, dispatchClosePath } from '@/store';
 import { Store } from 'vuex';
 import { GridState, WordList, LetterGrid, WordPath, WordPathPosition } from '@/types';
 import WordPathComponent from './WordPath.vue';
 import some from 'lodash/some';
-import find from 'lodash/find';
 
 interface ComponentData {
   pathing: boolean;
@@ -71,6 +70,9 @@ export default Vue.extend({
     },
     paths(): WordPath[] {
       return readWordPaths(this.$store);
+    },
+    candidate(): WordPath {
+      return readCandidatePath(this.$store);
     }
   },
   mounted() {
@@ -78,77 +80,18 @@ export default Vue.extend({
   },
   methods: {
     startPath(char: string, x: number, y: number) {
-      console.log('startPath', char, x, y);
-
-      this.pathing = true;
-      this.path.push({ x, y, char });
+      dispatchStartPath(this.$store, { x, y, char });
     },
     updatePath(char: string, x: number, y: number) {
-      if (this.pathing) {
-        console.log('appendToPath', char, x, y);
-
-        if (this.path.length > 1) {
-          const prev = this.path[this.path.length - 2];
-          const isPreviousPosition = prev.x == x && prev.y == y;
-          if (isPreviousPosition) {
-            this.path.pop();
-            return;
-          }
-
-          const last = this.path[this.path.length - 1];
-          const isOutOfReach = Math.abs(last.x - x) > 1 || Math.abs(last.y - y) > 1;
-          if (isOutOfReach) {
-            return;
-          }
-
-          const inPath = some(this.path, p => p.x == x && p.y == y);
-          if (inPath) {
-            return;
-          }
-        }
-
-        this.path.push({ x, y, char });
-      }
+      dispatchUpdatePath(this.$store, { x, y, char });
     },
     closePath() {
-      console.log('closePath', this.path);
-
-      const checkCandidateRobust = (solution: WordPath, candidate: WordPath): boolean => {
-        let found = true;
-        for (let i = 0; i < solution.length; i++) {
-          const sPos = solution[i];
-          const cPos = candidate[i];
-
-          if (sPos.x !== cPos.x || sPos.y !== cPos.y) {
-            found = false;
-            break;
-          }
-        }
-
-        return found;
-      };
-
-      // This is slightly more generous version -- allow finding the word
-      // _anywhere_, not just in the expected position.
-      //
-      const checkCandidateSimple = (solution: WordPath, candidate: WordPath): boolean => {
-        return solution.map(p => p.char).join() === candidate.map(p => p.char).join();
-      };
-
-      const foundPath = find(this.paths, solution => checkCandidateSimple(solution, this.path));
-      if (foundPath) {
-        console.log('found', foundPath);
-      }
-
-      this.pathing = false;
-      this.path = [];
+      dispatchClosePath(this.$store);
     },
     cellClass(x: number, y: number): string | undefined {
-      if (this.pathing) {
-        const inPath = some(this.path, p => p.x == x && p.y == y);
-        if (inPath) {
-          return 'letter-grid--active';
-        }
+      const inPath = some(this.candidate, p => p.x == x && p.y == y);
+      if (inPath) {
+        return 'letter-grid--active';
       }
     }
   }
