@@ -17,6 +17,7 @@ const storeOptions = {
   state: {
     puzzle: null,
     candidate: [],
+    found: {},
     pathing: false
   },
   getters: {
@@ -46,6 +47,9 @@ const storeOptions = {
     },
     getCandidate(state: GridState) {
       return state.candidate;
+    },
+    getFoundWords(state: GridState) {
+      return state.found;
     }
   },
   mutations: {
@@ -64,6 +68,10 @@ const storeOptions = {
     closePath(state: GridState) {
       state.pathing = false;
       state.candidate = [];
+    },
+    foundWord(state: GridState, payload: WordPath) {
+      const word = payload.map(p => p.char).join('');
+      Vue.set(state.found, word, payload);
     }
   },
   actions: {
@@ -140,7 +148,7 @@ const storeOptions = {
 
       const foundPath = find(puzzle.paths, (solution: WordPath) => checkCandidateSimple(solution, state.candidate));
       if (foundPath) {
-        console.log('found', foundPath);
+        commitFoundWord(context, foundPath);
       }
 
       commitClosePath(context);
@@ -156,6 +164,7 @@ export const readWordList = read(getters.getWords);
 export const readLetterGrid = read(getters.getGrid);
 export const readWordPaths = read(getters.getPaths);
 export const readCandidatePath = read(getters.getCandidate);
+export const readFoundWords = read(getters.getFoundWords);
 
 const mutations = storeOptions.mutations;
 export const commitPuzzle = commit(mutations.setPuzzle);
@@ -163,6 +172,7 @@ export const commitStartPath = commit(mutations.startPath);
 export const commitAddToPath = commit(mutations.addToPath);
 export const commitRemoveFromPath = commit(mutations.removeFromPath);
 export const commitClosePath = commit(mutations.closePath);
+export const commitFoundWord = commit(mutations.foundWord);
 
 const actions = storeOptions.actions;
 export const dispatchCreateWordSearch = dispatch(actions.createWordSearch);

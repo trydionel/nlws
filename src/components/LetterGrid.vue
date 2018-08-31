@@ -26,7 +26,7 @@
 
     <div class="letter-grid--list">
       <ul>
-        <li v-for="(word, index) in words" :key="word + '-' + index">
+        <li v-for="(word, index) in words" :key="word + '-' + index" :class="listClass(word)">
           {{ word }}
           <word-path :path="paths[index]" />
         </li>
@@ -37,7 +37,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { readWordList, readLetterGrid, dispatchCreateWordSearch, readWordPaths, dispatchStartPath, dispatchUpdatePath, readCandidatePath, dispatchClosePath } from '@/store';
+import { readWordList, readLetterGrid, dispatchCreateWordSearch, readWordPaths, dispatchStartPath, dispatchUpdatePath, readCandidatePath, dispatchClosePath, readFoundWords } from '@/store';
 import { Store } from 'vuex';
 import { GridState, WordList, LetterGrid, WordPath, WordPathPosition } from '@/types';
 import WordPathComponent from './WordPath.vue';
@@ -75,6 +75,9 @@ export default Vue.extend({
     },
     candidate(): WordPath {
       return readCandidatePath(this.$store);
+    },
+    found(): { [key: string]: WordPath } {
+      return readFoundWords(this.$store);
     }
   },
   mounted() {
@@ -91,9 +94,19 @@ export default Vue.extend({
       dispatchClosePath(this.$store);
     },
     cellClass(x: number, y: number): string | undefined {
-      const inPath = some(this.candidate, p => p.x == x && p.y == y);
-      if (inPath) {
+      const inPath = (path: WordPath) => some(path, p => p.x == x && p.y == y);
+      const isFound = some(this.found, (path, foundWord) => inPath(path));
+
+      if (inPath(this.candidate)) {
         return 'letter-grid--active';
+      } else if (isFound) {
+        return 'letter-grid--found';
+      }
+    },
+    listClass(word: string): string | undefined {
+      const found = some(this.found, (path, foundWord) => foundWord == word);
+      if (found) {
+        return 'letter-grid--found'
       }
     }
   }
@@ -144,10 +157,15 @@ export default Vue.extend({
       line-height: $hit;
       border-radius: 100%;
     }
+  }
 
-    .letter-grid--active {
-      background-color: red;
-    }
+  .letter-grid--active {
+    background-color: red;
+  }
+
+  .letter-grid--found {
+    background-color: green;
+    color: white;
   }
 }
 
