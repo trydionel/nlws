@@ -97,7 +97,7 @@ export class PuzzleBuilder {
 
         // Space not valid
         char = word[i];
-        if (this.grid[x][y] !== '' && this.grid[x][y] !== word[i]) {
+        if (this.grid[y][x] !== '' && this.grid[y][x] !== word[i]) {
           console.log('space not valid');
           break;
         }
