@@ -1,9 +1,11 @@
 <template>
   <div class="letter-grid">
     <div class="letter-grid--header">
-      <span v-for="position in path" :key="position.char">
-        {{ position.char }}
-      </span>
+      <transition-group name="pop" tag="div">
+        <span v-for="position in candidate" :key="position.char" class="letter-grid--header-char">
+          {{ position.char }}
+        </span>
+      </transition-group>
     </div>
 
     <div class="letter-grid--table">
@@ -100,12 +102,32 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .letter-grid {
+  font-family: 'Nunito', sans-serif;
+  font-size: 24px;
+
   display: grid;
   grid-template-columns: 3fr 1fr;
   grid-template-rows: 50px auto;
 
   .letter-grid--header {
     grid-column: span 2;
+
+    .letter-grid--header-char {
+      display: inline-block;
+    }
+
+    .pop-enter-active, .pop-leave-active {
+      transition: all 250ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .pop-enter-to, .pop-leave {
+      transform: rotateZ(0deg);
+    }
+
+    .pop-enter, .pop-leave-to {
+      opacity: 0;
+      transform: rotateZ(-30deg);
+    }
   }
 
   .letter-grid--table {
@@ -120,7 +142,7 @@ export default Vue.extend({
       width: $hit;
       height: $hit;
       line-height: $hit;
-
+      border-radius: 100%;
     }
 
     .letter-grid--active {
