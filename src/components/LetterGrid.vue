@@ -16,7 +16,6 @@
         <tr v-for="(row, y) in grid" :key="'row-' + y">
           <td v-for="(letter, x) in row" :key="'col-' + x">
             <div class="letter-grid--letter"
-              :class="cellClass(x, y)"
               @mousedown="startPath(letter, x, y)"
               @mouseover="updatePath(letter, x, y)"
               @mouseup="closePath()">
@@ -25,13 +24,21 @@
           </td>
         </tr>
       </table>
+
+      <div class="letter-grid--paths">
+        <path-visualization
+          v-for="(path, index) in found"
+          :key="`path-${index}`"
+          :path="path" />
+        <path-visualization :path="candidate" />
+      </div>
     </div>
 
     <div class="letter-grid--list">
       <ul>
         <li v-for="(word, index) in words" :key="word + '-' + index" :class="listClass(word)">
           {{ word }}
-          <word-path :path="paths[index]" />
+          <!-- <path-visualization :path="paths[index]" /> -->
         </li>
       </ul>
     </div>
@@ -43,7 +50,7 @@ import Vue from 'vue';
 import { readWordList, readLetterGrid, dispatchCreateWordSearch, readWordPaths, dispatchStartPath, dispatchUpdatePath, readCandidatePath, dispatchClosePath, readFoundWords, readBuildingPuzzle, readErrored } from '@/store';
 import { Store } from 'vuex';
 import { GridState, WordList, LetterGrid, WordPath, WordPathPosition } from '@/types';
-import WordPathComponent from './WordPath.vue';
+import PathVisualization from './PathVisualization.vue';
 import some from 'lodash/some';
 
 interface ComponentData {
@@ -53,7 +60,7 @@ interface ComponentData {
 
 export default Vue.extend({
   components: {
-    WordPath: WordPathComponent
+    PathVisualization
   },
   filters: {
     json(input: any) {
@@ -102,16 +109,6 @@ export default Vue.extend({
     closePath() {
       dispatchClosePath(this.$store);
     },
-    cellClass(x: number, y: number): string | undefined {
-      const inPath = (path: WordPath) => some(path, p => p.x == x && p.y == y);
-      const isFound = some(this.found, (path, foundWord) => inPath(path));
-
-      if (inPath(this.candidate)) {
-        return 'letter-grid--active';
-      } else if (isFound) {
-        return 'letter-grid--found';
-      }
-    },
     listClass(word: string): string | undefined {
       const found = some(this.found, (path, foundWord) => foundWord == word);
       if (found) {
@@ -155,6 +152,17 @@ export default Vue.extend({
   .letter-grid--table {
     user-select: none;
     margin: 0 auto;
+    position: relative;
+
+    table {
+      border-collapse: collapse;
+    }
+
+    /deep/ svg {
+      position: absolute;
+      top: 0;
+      z-index: 10;
+    }
 
     .letter-grid--letter {
       $area: 50px;
@@ -169,7 +177,7 @@ export default Vue.extend({
   }
 
   .letter-grid--active {
-    background-color: red;
+    // background-color: red;
   }
 
   .letter-grid--found {
