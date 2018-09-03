@@ -18,7 +18,9 @@ const storeOptions = {
     puzzle: null,
     candidate: [],
     found: {},
-    pathing: false
+    pathing: false,
+    errored: false,
+    building: false
   },
   getters: {
     getWords(state: GridState) {
@@ -50,11 +52,26 @@ const storeOptions = {
     },
     getFoundWords(state: GridState) {
       return state.found;
+    },
+    getBuildingPuzzle(state: GridState) {
+      return state.building;
+    },
+    getErrored(state: GridState) {
+      return state.errored;
     }
   },
   mutations: {
+    buildingPuzzle(state: GridState) {
+      state.building = true;
+      state.errored = false;
+    },
     setPuzzle(state: GridState, payload: Puzzle) {
       state.puzzle = payload;
+      state.building = false;
+      state.errored = false;
+    },
+    buildingFailed(state: GridState) {
+      state.errored = true;
     },
     startPath(state: GridState) {
       state.pathing = true;
@@ -76,11 +93,15 @@ const storeOptions = {
   },
   actions: {
     async createWordSearch(context: GridContext): Promise<void> {
-      const words = new WordlistBuilder().get(10);
+      commitBuildingPuzzle(context);
+
+      const words = await new WordlistBuilder().get(10);
       const puzzle = new PuzzleBuilder(words).build();
 
       if (puzzle) {
         commitPuzzle(context, puzzle);
+      } else {
+        commitBuildingFailed(context);
       }
     },
     startPath(context: GridContext, payload: WordPathPosition) {
@@ -143,7 +164,7 @@ const storeOptions = {
       // _anywhere_, not just in the expected position.
       //
       const checkCandidateSimple = (solution: WordPath, candidate: WordPath): boolean => {
-        return solution.map(p => p.char).join() === candidate.map(p => p.char).join();
+        return solution.map(p => p.char.toLowerCase()).join() === candidate.map(p => p.char.toLowerCase()).join();
       };
 
       const foundPath = find(puzzle.paths, (solution: WordPath) => checkCandidateSimple(solution, state.candidate));
@@ -165,8 +186,12 @@ export const readLetterGrid = read(getters.getGrid);
 export const readWordPaths = read(getters.getPaths);
 export const readCandidatePath = read(getters.getCandidate);
 export const readFoundWords = read(getters.getFoundWords);
+export const readBuildingPuzzle = read(getters.getBuildingPuzzle);
+export const readErrored = read(getters.getErrored);
 
 const mutations = storeOptions.mutations;
+export const commitBuildingPuzzle = commit(mutations.buildingPuzzle);
+export const commitBuildingFailed = commit(mutations.buildingFailed);
 export const commitPuzzle = commit(mutations.setPuzzle);
 export const commitStartPath = commit(mutations.startPath);
 export const commitAddToPath = commit(mutations.addToPath);

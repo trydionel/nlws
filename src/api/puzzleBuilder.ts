@@ -24,7 +24,7 @@ export class PuzzleBuilder {
     if (!longestWord) return null;
 
     try {
-      this.initGrid(1.5 * longestWord);
+      this.initGrid(2 * longestWord);
       this.placeWords();
       this.fillBlanks();
     } catch (e) {
@@ -77,7 +77,7 @@ export class PuzzleBuilder {
       x = Math.floor(this.size * Math.random());
       y = Math.floor(this.size * Math.random());
       path = [];
-      theta = 4;
+      theta = 0;
       angle = theta * Math.PI / 4;
       i = 0;
       console.log(`Attempting to place ${word} starting at ${x},${y}`);
@@ -120,7 +120,7 @@ export class PuzzleBuilder {
         // Commit all positions
         path.forEach(position => {
           const { x, y, char } = position;
-          this.grid[y][x] = char;
+          this.grid[y][x] = char.toUpperCase();
         });
         placed = true;
       }

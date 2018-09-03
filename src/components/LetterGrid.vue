@@ -1,6 +1,9 @@
 <template>
   <div class="letter-grid">
     <div class="letter-grid--header">
+      <span v-if="building">Building puzzle...</span>
+      <span v-if="errored">Failed to build puzzle!</span>
+
       <transition-group name="pop" tag="div">
         <span v-for="position in candidate" :key="position.char" class="letter-grid--header-char">
           {{ position.char }}
@@ -37,7 +40,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { readWordList, readLetterGrid, dispatchCreateWordSearch, readWordPaths, dispatchStartPath, dispatchUpdatePath, readCandidatePath, dispatchClosePath, readFoundWords } from '@/store';
+import { readWordList, readLetterGrid, dispatchCreateWordSearch, readWordPaths, dispatchStartPath, dispatchUpdatePath, readCandidatePath, dispatchClosePath, readFoundWords, readBuildingPuzzle, readErrored } from '@/store';
 import { Store } from 'vuex';
 import { GridState, WordList, LetterGrid, WordPath, WordPathPosition } from '@/types';
 import WordPathComponent from './WordPath.vue';
@@ -78,6 +81,12 @@ export default Vue.extend({
     },
     found(): { [key: string]: WordPath } {
       return readFoundWords(this.$store);
+    },
+    building(): Boolean {
+      return readBuildingPuzzle(this.$store);
+    },
+    errored(): Boolean {
+      return readErrored(this.$store);
     }
   },
   mounted() {

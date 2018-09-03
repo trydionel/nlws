@@ -19,4 +19,6 @@ export interface GridState {
   candidate: WordPath;
   found: { [key: string]: WordPath };
   pathing: Boolean;
+  errored: Boolean;
+  building: Boolean;
 }
