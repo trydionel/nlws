@@ -18,7 +18,7 @@ import PathVisualization from '@/components/PathVisualization.vue';
 
 export default {
   components: {
-    PathVisualization
+    PathVisualization,
   },
   data() {
     return {
@@ -28,10 +28,10 @@ export default {
         { x: 3, y: 2, char: 'b' },
         { x: 4, y: 3, char: 'c' },
         { x: 4, y: 4, char: 'd' },
-      ]
+      ],
     };
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>

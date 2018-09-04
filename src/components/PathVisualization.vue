@@ -39,17 +39,15 @@ export default Vue.extend({
   props: {
     path: <PropOptions<WordPath>> {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
   data(): { width: number; radius: number; cell: number } {
     return {
       width: 0,
       radius: 16,
-      cell: 52
+      cell: 52,
     };
-  },
-  mounted() {
   },
   computed: {
     svgRects(): object[] {
@@ -74,9 +72,9 @@ export default Vue.extend({
       }
 
       return rects;
-    }
+    },
   },
-})
+});
 </script>
 
 <style lang="scss" scoped>

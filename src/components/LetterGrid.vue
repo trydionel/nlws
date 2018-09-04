@@ -47,7 +47,19 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { readWordList, readLetterGrid, dispatchCreateWordSearch, readWordPaths, dispatchStartPath, dispatchUpdatePath, readCandidatePath, dispatchClosePath, readFoundWords, readBuildingPuzzle, readErrored } from '@/store';
+import {
+  dispatchClosePath,
+  dispatchCreateWordSearch,
+  dispatchStartPath,
+  dispatchUpdatePath,
+  readBuildingPuzzle,
+  readCandidatePath,
+  readErrored,
+  readFoundWords,
+  readLetterGrid,
+  readWordList,
+  readWordPaths,
+} from '@/store';
 import { Store } from 'vuex';
 import { GridState, WordList, LetterGrid, WordPath, WordPathPosition } from '@/types';
 import PathVisualization from './PathVisualization.vue';
@@ -60,18 +72,18 @@ interface ComponentData {
 
 export default Vue.extend({
   components: {
-    PathVisualization
+    PathVisualization,
   },
   filters: {
     json(input: any) {
       return JSON.stringify(input);
-    }
+    },
   },
   data(): ComponentData {
     return {
       pathing: false,
-      path: []
-    }
+      path: [],
+    };
   },
   computed: {
     words(): WordList {
@@ -89,12 +101,12 @@ export default Vue.extend({
     found(): { [key: string]: WordPath } {
       return readFoundWords(this.$store);
     },
-    building(): Boolean {
+    building(): boolean {
       return readBuildingPuzzle(this.$store);
     },
-    errored(): Boolean {
+    errored(): boolean {
       return readErrored(this.$store);
-    }
+    },
   },
   mounted() {
     dispatchCreateWordSearch(this.$store);
@@ -110,12 +122,12 @@ export default Vue.extend({
       dispatchClosePath(this.$store);
     },
     listClass(word: string): string | undefined {
-      const found = some(this.found, (path, foundWord) => foundWord == word);
+      const found = some(this.found, (path, foundWord) => foundWord === word);
       if (found) {
-        return 'letter-grid--found'
+        return 'letter-grid--found';
       }
-    }
-  }
+    },
+  },
 });
 </script>
 

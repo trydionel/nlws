@@ -4,7 +4,7 @@ export type WordPath = WordPathPosition[];
 export interface WordPathPosition {
   x: number;
   y: number;
-  char: string
+  char: string;
   angle?: number;
 }
 
@@ -18,7 +18,7 @@ export interface GridState {
   puzzle: Puzzle | null;
   candidate: WordPath;
   found: { [key: string]: WordPath };
-  pathing: Boolean;
-  errored: Boolean;
-  building: Boolean;
+  pathing: boolean;
+  errored: boolean;
+  building: boolean;
 }

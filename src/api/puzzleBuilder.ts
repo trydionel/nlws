@@ -4,7 +4,7 @@ import range from 'lodash/range';
 import sample from 'lodash/sample';
 import some from 'lodash/some';
 
-const Alphabet = range(65, 91).map(n => String.fromCharCode(n));
+const Alphabet = range(65, 91).map((n) => String.fromCharCode(n));
 
 export class PuzzleBuilder {
   private words: WordList;
@@ -19,23 +19,25 @@ export class PuzzleBuilder {
     this.paths = [];
   }
 
-  build(): Puzzle | null {
-    const longestWord = max(this.words.map(word => word.length));
-    if (!longestWord) return null;
+  public build(): Puzzle | null {
+    const longestWord = max(this.words.map((word) => word.length));
+    if (!longestWord) {
+      return null;
+    }
 
     try {
       this.initGrid(2 * longestWord);
       this.placeWords();
       this.fillBlanks();
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return null;
     }
 
     return {
       words: this.words,
       grid: this.grid,
-      paths: this.paths
+      paths: this.paths,
     };
   }
 
@@ -55,23 +57,23 @@ export class PuzzleBuilder {
   }
 
   private placeWords() {
-    this.words.forEach(word => {
+    this.words.forEach((word) => {
       const path = this.placeWord(word);
       this.paths.push(path);
     });
   }
 
   private placeWord(word: string): WordPath {
+    const maxAttempts = 50;
     let placed = false;
     let attempts = 0;
     let i = 0;
-    let maxAttempts = 50;
-    let x: number,
-        y: number,
-        char: string,
-        theta: number,
-        angle: number,
-        path: WordPath = [];
+    let x: number;
+    let y: number;
+    let char: string;
+    let theta: number;
+    let angle: number;
+    let path: WordPath = [];
 
     while (!placed && attempts < maxAttempts) {
       x = Math.floor(this.size * Math.random());
@@ -90,7 +92,7 @@ export class PuzzleBuilder {
         }
 
         // Position already used in path
-        if (path.length > 0 && some(path, p => p.x === x && p.y === y)) {
+        if (path.length > 0 && some(path, (p) => p.x === x && p.y === y)) {
           console.log(`position ${x},${y} already used`);
           break;
         }
@@ -103,7 +105,7 @@ export class PuzzleBuilder {
         }
 
         console.log(`placed ${char} at ${x},${y} from ${theta}`);
-        path.push({ x, y, char, angle })
+        path.push({ x, y, char, angle });
 
         // Only 60% chance of changing directions for next character
         if (Math.random() < 0.6) {
@@ -118,8 +120,8 @@ export class PuzzleBuilder {
 
       if (path.length === word.length) {
         // Commit all positions
-        path.forEach(position => {
-          const { x, y, char } = position;
+        path.forEach((position) => {
+          let { x, y, char } = position;
           this.grid[y][x] = char.toUpperCase();
         });
         placed = true;
@@ -129,7 +131,7 @@ export class PuzzleBuilder {
     }
 
     if (!placed) {
-      throw new Error(`Failed to place word ${word} in ${maxAttempts} attempts`)
+      throw new Error(`Failed to place word ${word} in ${maxAttempts} attempts`);
     }
 
     return path;

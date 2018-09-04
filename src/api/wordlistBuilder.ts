@@ -11,18 +11,18 @@ const Topics = [
   'chemistry',
   'physics',
   'kids',
-  'school'
+  'school',
 ];
 
 export class WordlistBuilder {
-  async get(count: number): Promise<string[]> {
+  public async get(count: number): Promise<string[]> {
     const topic = sample(Topics);
     const result = fetch(`https://api.datamuse.com/words?rel_trg=${topic}&max=100`);
-    return result.then(response => {
+    return result.then((response) => {
       return response.json();
     }).then((json: DatamuseWord[]) => {
       const selected = new Set();
-      while (selected.size < 10) {
+      while (selected.size < count) {
         const entry = sample(json) as DatamuseWord;
         const word = entry.word;
         if (word.length < 8) {

@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex, { ActionContext } from 'vuex';
-import { getStoreAccessors } from "vuex-typescript";
+import { getStoreAccessors } from 'vuex-typescript';
 
 import { GridState, Puzzle, WordPathPosition, WordPath } from './types';
 import { WordlistBuilder } from '@/api/wordlistBuilder';
@@ -20,7 +20,7 @@ const storeOptions = {
     found: {},
     pathing: false,
     errored: false,
-    building: false
+    building: false,
   },
   getters: {
     getWords(state: GridState) {
@@ -36,7 +36,7 @@ const storeOptions = {
       if (puzzle) {
         return puzzle.grid;
       } else {
-        return [[]]
+        return [[]];
       }
     },
     getPaths(state: GridState) {
@@ -44,7 +44,7 @@ const storeOptions = {
       if (puzzle) {
         return puzzle.paths;
       } else {
-        return []
+        return [];
       }
     },
     getCandidate(state: GridState) {
@@ -58,7 +58,7 @@ const storeOptions = {
     },
     getErrored(state: GridState) {
       return state.errored;
-    }
+    },
   },
   mutations: {
     buildingPuzzle(state: GridState) {
@@ -87,9 +87,9 @@ const storeOptions = {
       state.candidate = [];
     },
     foundWord(state: GridState, payload: WordPath) {
-      const word = payload.map(p => p.char).join('');
+      const word = payload.map((p) => p.char).join('');
       Vue.set(state.found, word, payload);
-    }
+    },
   },
   actions: {
     async createWordSearch(context: GridContext): Promise<void> {
@@ -115,7 +115,7 @@ const storeOptions = {
       if (state.pathing) {
         if (state.candidate.length > 1) {
           const prev = state.candidate[state.candidate.length - 2];
-          const isPreviousPosition = prev.x == x && prev.y == y;
+          const isPreviousPosition = prev.x === x && prev.y === y;
           if (isPreviousPosition) {
             commitRemoveFromPath(context);
             return;
@@ -127,7 +127,7 @@ const storeOptions = {
             return;
           }
 
-          const inPath = some(state.candidate, p => p.x == x && p.y == y);
+          const inPath = some(state.candidate, (p) => p.x === x && p.y === y);
           if (inPath) {
             return;
           }
@@ -140,7 +140,9 @@ const storeOptions = {
       const state = context.state;
       const puzzle = state.puzzle;
 
-      if (!puzzle) return;
+      if (!puzzle) {
+        return;
+      }
 
       // This is the pedantic version, where users have to find the _exact_
       // placement of the word.
@@ -164,7 +166,7 @@ const storeOptions = {
       // _anywhere_, not just in the expected position.
       //
       const checkCandidateSimple = (solution: WordPath, candidate: WordPath): boolean => {
-        return solution.map(p => p.char.toLowerCase()).join() === candidate.map(p => p.char.toLowerCase()).join();
+        return solution.map((p) => p.char.toLowerCase()).join() === candidate.map((p) => p.char.toLowerCase()).join();
       };
 
       const foundPath = find(puzzle.paths, (solution: WordPath) => checkCandidateSimple(solution, state.candidate));
@@ -173,7 +175,7 @@ const storeOptions = {
       }
 
       commitClosePath(context);
-    }
+    },
   },
 };
 
