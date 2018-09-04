@@ -16,6 +16,7 @@
         <tr v-for="(row, y) in grid" :key="'row-' + y">
           <td v-for="(letter, x) in row" :key="'col-' + x">
             <div class="letter-grid--letter"
+              :class="cellClass(x, y)"
               @mousedown="startPath(letter, x, y)"
               @mouseover="updatePath(letter, x, y)"
               @mouseup="closePath()">
@@ -35,10 +36,10 @@
     </div>
 
     <div class="letter-grid--list">
+      <h3>Word list</h3>
       <ul>
         <li v-for="(word, index) in words" :key="word + '-' + index" :class="listClass(word)">
           {{ word }}
-          <!-- <path-visualization :path="paths[index]" /> -->
         </li>
       </ul>
     </div>
@@ -121,10 +122,18 @@ export default Vue.extend({
     closePath() {
       dispatchClosePath(this.$store);
     },
+    cellClass(x: number, y: number): string | undefined {
+      const inPath = (path: WordPath) => some(path, p => p.x == x && p.y == y);
+      const isFound = some(this.found, (path, foundWord) => inPath(path));
+
+      if (isFound) {
+        return 'letter-grid--found-char';
+      }
+    },
     listClass(word: string): string | undefined {
-      const found = some(this.found, (path, foundWord) => foundWord === word);
+      const found = some(this.found, (path, foundWord) => foundWord.toLowerCase() === word.toLowerCase());
       if (found) {
-        return 'letter-grid--found';
+        return 'letter-grid--found-word';
       }
     },
   },
@@ -137,11 +146,13 @@ export default Vue.extend({
   font-size: 24px;
 
   display: grid;
-  grid-template-columns: 3fr 1fr;
-  grid-template-rows: 50px auto;
+  grid-template-columns: [main-start] 1fr [table-start] 3fr [table-end sidebar-start ]1fr [sidebar-end] 1fr [main-end];
+  grid-template-rows: 100px auto;
 
   .letter-grid--header {
-    grid-column: span 2;
+    grid-column: main-start / main-end;
+    text-align: center;
+    align-content: center;
 
     .letter-grid--header-char {
       display: inline-block;
@@ -162,12 +173,17 @@ export default Vue.extend({
   }
 
   .letter-grid--table {
+    grid-area: table;
     user-select: none;
     margin: 0 auto;
     position: relative;
+    background-color: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 3px 6px rgba(0, 0, 0, 0.12);
 
     table {
       border-collapse: collapse;
+      text-align: center;
     }
 
     /deep/ svg {
@@ -188,14 +204,34 @@ export default Vue.extend({
     }
   }
 
-  .letter-grid--active {
-    // background-color: red;
+  .letter-grid--found-char {
+    animation: jitter 350ms linear;
   }
 
-  .letter-grid--found {
-    background-color: green;
-    color: white;
+  .letter-grid--found-word {
+    text-decoration: line-through;
   }
+
+  .letter-grid--list {
+    grid-area: sidebar;
+    color: white;
+    text-shadow: 0 1px rgba(0, 0, 0, 0.25);
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+  }
+}
+
+@keyframes jitter {
+  0% { transform: scale(1.0) rotateZ(0deg); }
+  20% { transform: scale(1.1) rotateZ(-15deg); }
+  40% { transform: scale(1.2) rotateZ(15deg); }
+  60% { transform: scale(1.2) rotateZ(-15deg); }
+  80% { transform: scale(1.1) rotateZ(15deg); }
+  100% { transform: scale(1.0) rotateZ(0deg); }
 }
 
 </style>
