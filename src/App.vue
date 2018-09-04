@@ -9,6 +9,7 @@
 
 body {
   background-image: linear-gradient(225deg, #009245, #FCEE21);
+  color: white;
 }
 
 #app {

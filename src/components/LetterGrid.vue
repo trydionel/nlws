@@ -36,13 +36,17 @@
     </div>
 
     <div class="letter-grid--list">
-      <h3>Word list</h3>
+      <h3 v-if="words.length > 0">Word list</h3>
       <ul>
         <li v-for="(word, index) in words" :key="word + '-' + index" :class="listClass(word)">
           {{ word }}
         </li>
       </ul>
     </div>
+
+    <a class="letter-grid--github" href="https://github.com/trydionel/nlws" title="View source on GitHub" target="_blank">
+      <img alt="GitHub logo" src="../assets/GitHub-Mark-Light-64px.png">
+    </a>
   </div>
 </template>
 
@@ -148,13 +152,17 @@ export default Vue.extend({
   display: grid;
   grid-template-columns: [main-start] 1fr [table-start] 3fr [table-end sidebar-start ]1fr [sidebar-end] 1fr [main-end];
   grid-template-rows: 100px auto;
+  grid-gap: 0 20px;
 
   .letter-grid--header {
     grid-column: main-start / main-end;
     text-align: center;
     align-content: center;
+    color: white;
+    line-height: 100px;
 
     .letter-grid--header-char {
+      font-size: 2.4rem;
       display: inline-block;
     }
 
@@ -217,10 +225,29 @@ export default Vue.extend({
     color: white;
     text-shadow: 0 1px rgba(0, 0, 0, 0.25);
 
+    h3 {
+      margin-top: 10px;
+    }
+
     ul {
       list-style-type: none;
       padding: 0;
       margin: 0;
+    }
+  }
+
+  .letter-grid--github {
+    position: fixed;
+    bottom: 0px;
+    right: 6px;
+
+    transition: opacity 200ms ease-in-out;
+    opacity: 0.25;
+    &:hover { opacity: 1.0; }
+
+    img {
+      width: 32px;
+      height: 32px;
     }
   }
 }
