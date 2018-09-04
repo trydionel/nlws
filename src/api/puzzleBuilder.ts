@@ -26,7 +26,7 @@ export class PuzzleBuilder {
     }
 
     try {
-      this.initGrid(2 * longestWord);
+      this.initGrid(12);
       this.placeWords();
       this.fillBlanks();
     } catch (e) {
@@ -64,7 +64,7 @@ export class PuzzleBuilder {
   }
 
   private placeWord(word: string): WordPath {
-    const maxAttempts = 50;
+    const maxAttempts = 250;
     let placed = false;
     let attempts = 0;
     let i = 0;
@@ -134,6 +134,7 @@ export class PuzzleBuilder {
       throw new Error(`Failed to place word ${word} in ${maxAttempts} attempts`);
     }
 
+    console.log(`Completed path in ${attempts} attempts`);
     return path;
   }
 
