@@ -171,7 +171,7 @@ const storeOptions = {
 
       const foundPath = find(puzzle.paths, (solution: WordPath) => checkCandidateSimple(solution, state.candidate));
       if (foundPath) {
-        commitFoundWord(context, foundPath);
+        commitFoundWord(context, state.candidate);
       }
 
       commitClosePath(context);
