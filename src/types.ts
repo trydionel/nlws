@@ -16,9 +16,11 @@ export interface Puzzle {
 
 export interface GridState {
   puzzle: Puzzle | null;
+  startedAt: Date;
   candidate: WordPath;
   found: { [key: string]: WordPath };
   pathing: boolean;
   errored: boolean;
   building: boolean;
+  won: boolean;
 }

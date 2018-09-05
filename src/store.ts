@@ -21,6 +21,8 @@ const storeOptions = {
     pathing: false,
     errored: false,
     building: false,
+    won: false,
+    startedAt: new Date(0),
   },
   getters: {
     getWords(state: GridState) {
@@ -59,6 +61,9 @@ const storeOptions = {
     getErrored(state: GridState) {
       return state.errored;
     },
+    getWon(state: GridState) {
+      return state.won;
+    }
   },
   mutations: {
     buildingPuzzle(state: GridState) {
@@ -69,6 +74,9 @@ const storeOptions = {
       state.puzzle = payload;
       state.building = false;
       state.errored = false;
+      state.startedAt = new Date();
+      state.won = false;
+      state.found = {};
     },
     buildingFailed(state: GridState) {
       state.errored = true;
@@ -89,6 +97,12 @@ const storeOptions = {
     foundWord(state: GridState, payload: WordPath) {
       const word = payload.map((p) => p.char).join('');
       Vue.set(state.found, word, payload);
+
+      const foundWords = Object.keys(state.found).length;
+      const totalWords = state.puzzle!.words.length;
+      if (foundWords === totalWords) {
+        state.won = true;
+      }
     },
   },
   actions: {
@@ -190,6 +204,7 @@ export const readCandidatePath = read(getters.getCandidate);
 export const readFoundWords = read(getters.getFoundWords);
 export const readBuildingPuzzle = read(getters.getBuildingPuzzle);
 export const readErrored = read(getters.getErrored);
+export const readWon = read(getters.getWon);
 
 const mutations = storeOptions.mutations;
 export const commitBuildingPuzzle = commit(mutations.buildingPuzzle);

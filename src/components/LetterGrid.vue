@@ -1,5 +1,7 @@
 <template>
   <div class="letter-grid">
+    <canvas class="letter-grid--canvas" :class="{ visible: won }" id="confetti-holder" />
+
     <div class="letter-grid--header">
       <span v-if="building">Building puzzle...</span>
       <span v-if="errored">Failed to build puzzle!</span>
@@ -42,6 +44,10 @@
           {{ word }}
         </li>
       </ul>
+
+      <button v-if="won" @click="newPuzzle">
+        Play again
+      </button>
     </div>
 
     <a class="letter-grid--github" href="https://github.com/trydionel/nlws" title="View source on GitHub" target="_blank">
@@ -64,15 +70,20 @@ import {
   readLetterGrid,
   readWordList,
   readWordPaths,
+readWon,
 } from '@/store';
 import { Store } from 'vuex';
 import { GridState, WordList, LetterGrid, WordPath, WordPathPosition } from '@/types';
 import PathVisualization from './PathVisualization.vue';
 import some from 'lodash/some';
 
+declare var ConfettiGenerator: any;
+import 'confetti-js';
+
 interface ComponentData {
   pathing: boolean;
   path: WordPath;
+  confetti: any;
 }
 
 export default Vue.extend({
@@ -88,6 +99,7 @@ export default Vue.extend({
     return {
       pathing: false,
       path: [],
+      confetti: null,
     };
   },
   computed: {
@@ -112,9 +124,28 @@ export default Vue.extend({
     errored(): boolean {
       return readErrored(this.$store);
     },
+    won(): boolean {
+      return readWon(this.$store);
+    }
   },
   mounted() {
-    dispatchCreateWordSearch(this.$store);
+    this.confetti = new ConfettiGenerator({
+      target: 'confetti-holder',
+      max: 200
+    });
+
+    this.newPuzzle();
+  },
+  watch: {
+    won: {
+      handler() {
+        if (this.won) {
+          this.confetti.render();
+        } else {
+          this.confetti.clear();
+        }
+      }
+    }
   },
   methods: {
     startPath(char: string, x: number, y: number) {
@@ -140,6 +171,9 @@ export default Vue.extend({
         return 'letter-grid--found-word';
       }
     },
+    newPuzzle(): void {
+      dispatchCreateWordSearch(this.$store);
+    }
   },
 });
 </script>
@@ -153,6 +187,22 @@ export default Vue.extend({
   grid-template-columns: [main-start] 1fr [table-start] 3fr [table-end sidebar-start ]1fr [sidebar-end] 1fr [main-end];
   grid-template-rows: 100px auto;
   grid-gap: 0 20px;
+
+  .letter-grid--canvas {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+
+    transition: opacity 500ms ease-in-out;
+    opacity: 0.1;
+    &.visible { opacity: 1; }
+  }
 
   .letter-grid--header {
     grid-column: main-start / main-end;
@@ -232,7 +282,24 @@ export default Vue.extend({
     ul {
       list-style-type: none;
       padding: 0;
-      margin: 0;
+      margin: 0 0 2em;
+    }
+
+    button {
+      padding: 8px 20px;
+      background-color: transparent;
+      color: white;
+      border: 2px solid white;
+      border-radius: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-weight: 500;
+      font-size: 16px;
+
+      &:focus { outline: none; }
+      &:hover { background-color: rgba(255, 255, 255, 0.1); }
+      &:active { background-color: rgba(255, 255, 255, 0.2); }
     }
   }
 
