@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex, { ActionContext } from 'vuex';
 import { getStoreAccessors } from 'vuex-typescript';
+import { event } from 'vue-analytics';
 
 import { GridState, Puzzle, WordPathPosition, WordPath } from './types';
 import { WordlistBuilder } from '@/api/wordlistBuilder';
@@ -77,6 +78,7 @@ const storeOptions = {
       state.startedAt = new Date();
       state.won = false;
       state.found = {};
+      event('puzzle', 'new');
     },
     buildingFailed(state: GridState) {
       state.errored = true;
@@ -97,11 +99,13 @@ const storeOptions = {
     foundWord(state: GridState, payload: WordPath) {
       const word = payload.map((p) => p.char).join('');
       Vue.set(state.found, word, payload);
+      event('puzzle', 'found_word');
 
       const foundWords = Object.keys(state.found).length;
       const totalWords = state.puzzle!.words.length;
       if (foundWords === totalWords) {
         state.won = true;
+        event('puzzle', 'finished');
       }
     },
   },
