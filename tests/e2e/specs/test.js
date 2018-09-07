@@ -1,6 +1,11 @@
 // https://docs.cypress.io/api/introduction/api.html
 
 describe('Letter grid', () => {
+  beforeEach(() => {
+    cy.server();
+    cy.route('GET', 'https://api.datamuse.com/words?*', 'fixtures:wordlist.json');
+  });
+
   it('has a 12x12 letter grid', () => {
     cy.visit('/');
     cy.get('.letter-grid--table tr').should('have.length', 12);
