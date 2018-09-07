@@ -13,6 +13,7 @@
     "confetti-js": "^0.0.13",
     "lodash": "^4.17.10",
     "normalize.css": "^8.0.0",
+    "pcg-random": "^1.0.0",
     "register-service-worker": "^1.0.0",
     "vue": "^2.5.17",
     "vue-analytics": "^5.16.0",

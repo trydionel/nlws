@@ -15,6 +15,7 @@ export interface Puzzle {
 }
 
 export interface GridState {
+  seed: number;
   puzzle: Puzzle | null;
   startedAt: Date;
   candidate: WordPath;

@@ -1,4 +1,4 @@
-import sample from 'lodash/sample';
+import { sample } from './random';
 
 interface DatamuseWord {
   word: string;

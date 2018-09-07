@@ -1,8 +1,8 @@
 import { WordList, LetterGrid, Puzzle, WordPath, WordPathPosition } from '@/types';
 import max from 'lodash/max';
 import range from 'lodash/range';
-import sample from 'lodash/sample';
 import some from 'lodash/some';
+import { Random, sample } from './random';
 
 const Alphabet = range(65, 91).map((n) => String.fromCharCode(n));
 
@@ -76,8 +76,8 @@ export class PuzzleBuilder {
     let path: WordPath = [];
 
     while (!placed && attempts < maxAttempts) {
-      x = Math.floor(this.size * Math.random());
-      y = Math.floor(this.size * Math.random());
+      x = Math.floor(this.size * Random.number());
+      y = Math.floor(this.size * Random.number());
       path = [];
       theta = 0;
       angle = theta * Math.PI / 4;
@@ -108,8 +108,8 @@ export class PuzzleBuilder {
         path.push({ x, y, char, angle });
 
         // Only 60% chance of changing directions for next character
-        if (Math.random() < 0.6) {
-          theta = (theta + Math.floor(5 * Math.random()) + 2) % 8;
+        if (Random.number() < 0.6) {
+          theta = (theta + Math.floor(5 * Random.number()) + 2) % 8;
         }
         angle = theta * Math.PI / 4;
         x = Math.round(x + Math.cos(angle));

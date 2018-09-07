@@ -9,6 +9,7 @@ import { PuzzleBuilder } from '@/api/puzzleBuilder';
 
 import find from 'lodash/find';
 import some from 'lodash/some';
+import { Random } from '@/api/random';
 
 Vue.use(Vuex);
 
@@ -16,6 +17,7 @@ type GridContext = ActionContext<GridState, GridState>;
 
 const storeOptions = {
   state: {
+    seed: 0,
     puzzle: null,
     candidate: [],
     found: {},
@@ -67,6 +69,12 @@ const storeOptions = {
     }
   },
   mutations: {
+    setSeed(state: GridState, payload: number) {
+      state.seed = payload;
+
+      // Update central PRNG seed too
+      Random.setSeed(state.seed);
+    },
     buildingPuzzle(state: GridState) {
       state.building = true;
       state.errored = false;
@@ -110,8 +118,9 @@ const storeOptions = {
     },
   },
   actions: {
-    async createWordSearch(context: GridContext): Promise<void> {
+    async createWordSearch(context: GridContext, payload:{ seed?: number; }): Promise<void> {
       commitBuildingPuzzle(context);
+      commitSetSeed(context, payload.seed || +new Date());
 
       const words = await new WordlistBuilder().get(10);
       const puzzle = new PuzzleBuilder(words).build();
@@ -211,6 +220,7 @@ export const readErrored = read(getters.getErrored);
 export const readWon = read(getters.getWon);
 
 const mutations = storeOptions.mutations;
+export const commitSetSeed = commit(mutations.setSeed);
 export const commitBuildingPuzzle = commit(mutations.buildingPuzzle);
 export const commitBuildingFailed = commit(mutations.buildingFailed);
 export const commitPuzzle = commit(mutations.setPuzzle);

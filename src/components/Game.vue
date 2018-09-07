@@ -1,23 +1,23 @@
 <template>
-  <div class="letter-grid">
-    <canvas class="letter-grid--canvas" :class="{ visible: won }" id="confetti-holder" />
+  <div class="game">
+    <canvas class="game--canvas" :class="{ visible: won }" id="confetti-holder" />
 
-    <div class="letter-grid--header">
+    <div class="game--header">
       <span v-if="building">Building puzzle...</span>
       <span v-if="errored">Failed to build puzzle!</span>
 
       <transition-group name="pop" tag="div">
-        <span v-for="position in candidate" :key="position.char" class="letter-grid--header-char">
+        <span v-for="position in candidate" :key="position.char" class="game--header-char">
           {{ position.char }}
         </span>
       </transition-group>
     </div>
 
-    <div class="letter-grid--table">
+    <div class="game--table">
       <table>
         <tr v-for="(row, y) in grid" :key="'row-' + y">
           <td v-for="(letter, x) in row" :key="'col-' + x">
-            <div class="letter-grid--letter"
+            <div class="game--letter"
               :class="cellClass(x, y)"
               @mousedown="startPath(letter, x, y)"
               @mouseover="updatePath(letter, x, y)"
@@ -28,7 +28,7 @@
         </tr>
       </table>
 
-      <div class="letter-grid--paths">
+      <div class="game--paths">
         <path-visualization
           v-for="(path, index) in found"
           :key="`path-${index}`"
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <div class="letter-grid--list">
+    <div class="game--list">
       <h3 v-if="words.length > 0">Word list</h3>
       <ul>
         <li
@@ -53,7 +53,7 @@
       </button>
     </div>
 
-    <a class="letter-grid--github" href="https://github.com/trydionel/nlws" title="View source on GitHub" target="_blank">
+    <a class="game--github" href="https://github.com/trydionel/nlws" title="View source on GitHub" target="_blank">
       <img alt="GitHub logo" src="../assets/GitHub-Mark-Light-64px.png">
     </a>
   </div>
@@ -90,8 +90,15 @@ interface ComponentData {
 }
 
 export default Vue.extend({
+  name: 'Game',
   components: {
     PathVisualization,
+  },
+  props: {
+    seed: {
+      type: Number,
+      required: false
+    }
   },
   filters: {
     json(input: any) {
@@ -165,29 +172,29 @@ export default Vue.extend({
       const isFound = some(this.found, (path, foundWord) => inPath(path));
 
       if (isFound) {
-        return 'letter-grid--found-char';
+        return 'game--found-char';
       }
     },
     listClass(word: string): string[] {
       const classes = [
-        'letter-grid--word'
+        'game--word'
       ];
       const found = some(this.found, (path, foundWord) => foundWord.toLowerCase() === word.toLowerCase());
       if (found) {
-        classes.push('letter-grid--found-word');
+        classes.push('game--found-word');
       }
 
       return classes;
     },
     newPuzzle(): void {
-      dispatchCreateWordSearch(this.$store);
+      dispatchCreateWordSearch(this.$store, { seed: this.seed });
     }
   },
 });
 </script>
 
 <style lang="scss" scoped>
-.letter-grid {
+.game {
   font-family: 'Nunito', sans-serif;
   font-size: 24px;
 
@@ -196,7 +203,7 @@ export default Vue.extend({
   grid-template-rows: 100px auto;
   grid-gap: 0 20px;
 
-  .letter-grid--canvas {
+  .game--canvas {
     position: absolute;
     z-index: -1;
     top: 0;
@@ -212,14 +219,14 @@ export default Vue.extend({
     &.visible { opacity: 1; }
   }
 
-  .letter-grid--header {
+  .game--header {
     grid-column: main-start / main-end;
     text-align: center;
     align-content: center;
     color: white;
     line-height: 100px;
 
-    .letter-grid--header-char {
+    .game--header-char {
       font-size: 2.4rem;
       display: inline-block;
     }
@@ -238,7 +245,7 @@ export default Vue.extend({
     }
   }
 
-  .letter-grid--table {
+  .game--table {
     grid-area: table;
     user-select: none;
     margin: 0 auto;
@@ -258,7 +265,7 @@ export default Vue.extend({
       z-index: 10;
     }
 
-    .letter-grid--letter {
+    .game--letter {
       $area: 50px;
       $hit: 20px;
 
@@ -270,15 +277,15 @@ export default Vue.extend({
     }
   }
 
-  .letter-grid--found-char {
+  .game--found-char {
     animation: jitter 350ms linear;
   }
 
-  .letter-grid--found-word {
+  .game--found-word {
     text-decoration: line-through;
   }
 
-  .letter-grid--list {
+  .game--list {
     grid-area: sidebar;
     color: white;
     text-shadow: 0 1px rgba(0, 0, 0, 0.25);
@@ -311,7 +318,7 @@ export default Vue.extend({
     }
   }
 
-  .letter-grid--github {
+  .game--github {
     position: fixed;
     bottom: 0px;
     right: 6px;
