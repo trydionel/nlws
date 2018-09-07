@@ -40,7 +40,10 @@
     <div class="letter-grid--list">
       <h3 v-if="words.length > 0">Word list</h3>
       <ul>
-        <li v-for="(word, index) in words" :key="word + '-' + index" :class="listClass(word)">
+        <li
+          v-for="(word, index) in words"
+          :key="word + '-' + index"
+          :class="listClass(word)">
           {{ word }}
         </li>
       </ul>
@@ -165,11 +168,16 @@ export default Vue.extend({
         return 'letter-grid--found-char';
       }
     },
-    listClass(word: string): string | undefined {
+    listClass(word: string): string[] {
+      const classes = [
+        'letter-grid--word'
+      ];
       const found = some(this.found, (path, foundWord) => foundWord.toLowerCase() === word.toLowerCase());
       if (found) {
-        return 'letter-grid--found-word';
+        classes.push('letter-grid--found-word');
       }
+
+      return classes;
     },
     newPuzzle(): void {
       dispatchCreateWordSearch(this.$store);
