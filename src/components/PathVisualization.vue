@@ -1,16 +1,16 @@
 <template>
-  <svg :width="size" :height="size">
+  <svg class="path-visualization">
     <defs>
       <filter id="svg-stroke" filterUnits="userSpaceOnUse">
         <feFlood flood-color="red" result="COLOR-RED" />
 
-        <feMorphology operator="dilate" radius="1" in="SourceAlpha" result="EXTRUDE" />
+        <feMorphology operator="dilate" radius="2" in="SourceAlpha" result="EXTRUDE" />
         <feComposite operator="out" in="EXTRUDE" in2="SourceAlpha" result="CUT" />
         <feComposite operator="in" in="COLOR-RED" in2="CUT" result="RED-STROKE" />
       </filter>
     </defs>
 
-    <g filter="url(#svg-stroke)">
+    <g class="path-visualization--path">
       <rect
         v-for="(r, index) in svgRects"
         :key="`rect-${index}`"
@@ -42,11 +42,10 @@ export default Vue.extend({
       required: true,
     },
   },
-  data(): { width: number; radius: number; cell: number } {
+  data(): { radius: number; cell: number } {
     return {
-      width: 0,
       radius: 16,
-      cell: 52,
+      cell: 52, // FIXME: hardcoded to reflect size from Game.vue
     };
   },
   computed: {
@@ -78,10 +77,14 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-svg {
+.path-visualization {
   display: block;
   width: 100%;
   height: 100%;
   pointer-events: none;
+
+  .path-visualization--path {
+    filter: url(#svg-stroke);
+  }
 }
 </style>

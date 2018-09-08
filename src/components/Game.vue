@@ -33,7 +33,9 @@
           v-for="(path, index) in found"
           :key="`path-${index}`"
           :path="path" />
-        <path-visualization :path="candidate" />
+        <path-visualization
+          :path="candidate"
+          v-if="candidate.length > 0" />
       </div>
     </div>
 
@@ -253,6 +255,7 @@ export default Vue.extend({
     background-color: white;
     border-radius: 4px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 3px 6px rgba(0, 0, 0, 0.12);
+    margin-bottom: 100px;
 
     table {
       border-collapse: collapse;
