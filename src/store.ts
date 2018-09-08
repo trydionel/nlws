@@ -122,14 +122,19 @@ const storeOptions = {
       commitBuildingPuzzle(context);
       commitSetSeed(context, payload.seed || +new Date());
 
-      const words = await new WordlistBuilder().get(10);
-      const puzzle = new PuzzleBuilder(words).build();
-
-      if (puzzle) {
-        commitPuzzle(context, puzzle);
-      } else {
+      const result = await new WordlistBuilder().get(10);
+      if (result.error) {
         commitBuildingFailed(context);
+        return;
       }
+
+      const puzzle = new PuzzleBuilder(result.words!).build();
+      if (!puzzle) {
+        commitBuildingFailed(context);
+        return;
+      }
+
+      commitPuzzle(context, puzzle);
     },
     startPath(context: GridContext, payload: WordPathPosition) {
       commitStartPath(context);

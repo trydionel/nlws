@@ -8,6 +8,13 @@ export interface WordPathPosition {
   angle?: number;
 }
 
+export interface WordlistResult {
+  words?: WordList;
+  error?: string;
+  topic: string;
+  count: number;
+}
+
 export interface Puzzle {
   words: WordList;
   grid: LetterGrid;

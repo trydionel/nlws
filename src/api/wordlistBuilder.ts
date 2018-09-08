@@ -1,4 +1,5 @@
 import { sample } from './random';
+import { WordlistResult } from '@/types';
 
 interface DatamuseWord {
   word: string;
@@ -12,12 +13,19 @@ const Topics = [
   'physics',
   'kids',
   'school',
+  'medical',
+  'internet',
+  'music',
+  'audio',
+  'space'
 ];
 
 export class WordlistBuilder {
-  public async get(count: number): Promise<string[]> {
+  public async get(count: number): Promise<WordlistResult> {
     const topic = sample(Topics);
+
     const result = fetch(`https://api.datamuse.com/words?rel_trg=${topic}&max=100`);
+
     return result.then((response) => {
       return response.json();
     }).then((json: DatamuseWord[]) => {
@@ -30,7 +38,17 @@ export class WordlistBuilder {
         }
       }
 
-      return Array.from(selected);
+      return {
+        count,
+        topic,
+        words: Array.from(selected)
+      };
+    }).catch((error: string) => {
+      return {
+        count,
+        topic,
+        error
+      }
     });
   }
 }
