@@ -52,6 +52,9 @@ const storeOptions = {
         return [];
       }
     },
+    getPuzzle(state: GridState) {
+      return state.puzzle;
+    },
     getCandidate(state: GridState) {
       return state.candidate;
     },
@@ -66,6 +69,9 @@ const storeOptions = {
     },
     getWon(state: GridState) {
       return state.won;
+    },
+    getStartedAt(state: GridState) {
+      return state.startedAt;
     }
   },
   mutations: {
@@ -122,13 +128,13 @@ const storeOptions = {
       commitBuildingPuzzle(context);
       commitSetSeed(context, payload.seed || +new Date());
 
-      const result = await new WordlistBuilder().get(10);
-      if (result.error) {
+      const wordlist = await new WordlistBuilder().get(10);
+      if (wordlist.error) {
         commitBuildingFailed(context);
         return;
       }
 
-      const puzzle = new PuzzleBuilder(result.words!).build();
+      const puzzle = new PuzzleBuilder(wordlist).build();
       if (!puzzle) {
         commitBuildingFailed(context);
         return;
@@ -215,14 +221,16 @@ export default new Vuex.Store<GridState>(storeOptions);
 
 const { commit, read, dispatch } = getStoreAccessors<GridState, GridState>('');
 const getters = storeOptions.getters;
-export const readWordList = read(getters.getWords);
-export const readLetterGrid = read(getters.getGrid);
-export const readWordPaths = read(getters.getPaths);
-export const readCandidatePath = read(getters.getCandidate);
-export const readFoundWords = read(getters.getFoundWords);
 export const readBuildingPuzzle = read(getters.getBuildingPuzzle);
+export const readCandidatePath = read(getters.getCandidate);
 export const readErrored = read(getters.getErrored);
+export const readFoundWords = read(getters.getFoundWords);
+export const readLetterGrid = read(getters.getGrid);
+export const readPuzzle = read(getters.getPuzzle);
+export const readStartedAt = read(getters.getStartedAt);
 export const readWon = read(getters.getWon);
+export const readWordList = read(getters.getWords);
+export const readWordPaths = read(getters.getPaths);
 
 const mutations = storeOptions.mutations;
 export const commitSetSeed = commit(mutations.setSeed);

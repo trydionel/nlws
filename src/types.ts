@@ -16,6 +16,7 @@ export interface WordlistResult {
 }
 
 export interface Puzzle {
+  topic: string;
   words: WordList;
   grid: LetterGrid;
   paths: WordPath[];

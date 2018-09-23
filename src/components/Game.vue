@@ -39,8 +39,9 @@
       </div>
     </div>
 
-    <div class="game--list">
-      <h3 v-if="words.length > 0">Word list</h3>
+    <div class="game--list" v-if="words.length > 0">
+      <h3 class="game--topic">{{ puzzle.topic }}</h3>
+      <p class="game--progress">{{ totalFound }} / {{ words.length }} found</p>
       <ul>
         <li
           v-for="(word, index) in words"
@@ -53,6 +54,8 @@
       <button v-if="won" @click="newPuzzle">
         Play again
       </button>
+
+      <play-timer :started-at="startedAt" :live="!won" />
     </div>
 
     <a class="game--github" href="https://github.com/trydionel/nlws" title="View source on GitHub" target="_blank">
@@ -75,12 +78,18 @@ import {
   readLetterGrid,
   readWordList,
   readWordPaths,
-readWon,
+  readWon,
+  readPuzzle,
+  readStartedAt,
+commitFoundWord,
 } from '@/store';
 import { Store } from 'vuex';
-import { GridState, WordList, LetterGrid, WordPath, WordPathPosition } from '@/types';
+import { GridState, WordList, LetterGrid, WordPath, WordPathPosition, Puzzle } from '@/types';
 import PathVisualization from './PathVisualization.vue';
+import PlayTimer from './PlayTimer.vue';
 import some from 'lodash/some';
+import find from 'lodash/find';
+import findIndex from 'lodash/findIndex';
 
 declare var ConfettiGenerator: any;
 import 'confetti-js';
@@ -95,6 +104,7 @@ export default Vue.extend({
   name: 'Game',
   components: {
     PathVisualization,
+    PlayTimer
   },
   props: {
     seed: {
@@ -115,6 +125,9 @@ export default Vue.extend({
     };
   },
   computed: {
+    puzzle(): Puzzle | null {
+      return readPuzzle(this.$store);
+    },
     words(): WordList {
       return readWordList(this.$store);
     },
@@ -130,6 +143,9 @@ export default Vue.extend({
     found(): { [key: string]: WordPath } {
       return readFoundWords(this.$store);
     },
+    totalFound(): number {
+      return Object.keys(this.found).length;
+    },
     building(): boolean {
       return readBuildingPuzzle(this.$store);
     },
@@ -138,23 +154,30 @@ export default Vue.extend({
     },
     won(): boolean {
       return readWon(this.$store);
+    },
+    candidateWord(): string {
+      return this.candidate && this.candidate.map(p => p.char).join('');
+    },
+    startedAt(): Date {
+      return readStartedAt(this.$store);
     }
   },
   mounted() {
-    this.confetti = new ConfettiGenerator({
-      target: 'confetti-holder',
-      max: 200
-    });
-
     this.newPuzzle();
   },
   watch: {
     won: {
       handler() {
         if (this.won) {
+          this.confetti = new ConfettiGenerator({
+            target: 'confetti-holder',
+            max: 200
+          });
           this.confetti.render();
         } else {
-          this.confetti.clear();
+          if (this.confetti) {
+            this.confetti.clear();
+          }
         }
       }
     }
@@ -201,7 +224,7 @@ export default Vue.extend({
   font-size: 24px;
 
   display: grid;
-  grid-template-columns: [main-start] 1fr [table-start] 3fr [table-end sidebar-start ]1fr [sidebar-end] 1fr [main-end];
+  grid-template-columns: [main-start] 2fr [table-start] 624px [table-end sidebar-start] 1fr [sidebar-end] 1fr [main-end];
   grid-template-rows: 100px auto;
   grid-gap: 0 20px;
 
@@ -286,6 +309,7 @@ export default Vue.extend({
 
   .game--found-word {
     text-decoration: line-through;
+    opacity: 0.66;
   }
 
   .game--list {
@@ -293,8 +317,16 @@ export default Vue.extend({
     color: white;
     text-shadow: 0 1px rgba(0, 0, 0, 0.25);
 
-    h3 {
+    .game--topic {
       margin-top: 10px;
+      margin-bottom: 0;
+      letter-spacing: 0.5px;
+    }
+
+    .game--progress {
+      margin: 0;
+      margin-bottom: 1em;
+      font-size: 0.85rem;
     }
 
     ul {

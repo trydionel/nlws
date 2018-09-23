@@ -1,4 +1,4 @@
-import { WordList, LetterGrid, Puzzle, WordPath, WordPathPosition } from '@/types';
+import { WordList, LetterGrid, Puzzle, WordPath, WordPathPosition, WordlistResult } from '@/types';
 import max from 'lodash/max';
 import range from 'lodash/range';
 import some from 'lodash/some';
@@ -7,13 +7,15 @@ import { Random, sample } from './random';
 const Alphabet = range(65, 91).map((n) => String.fromCharCode(n));
 
 export class PuzzleBuilder {
+  private topic: string;
   private words: WordList;
   private grid: LetterGrid;
   private size: number;
   private paths: WordPath[];
 
-  constructor(words: WordList) {
-    this.words = words;
+  constructor(wordlist: WordlistResult) {
+    this.topic = wordlist.topic;
+    this.words = wordlist.words!;
     this.size = 0;
     this.grid = [[]];
     this.paths = [];
@@ -35,6 +37,7 @@ export class PuzzleBuilder {
     }
 
     return {
+      topic: this.topic,
       words: this.words,
       grid: this.grid,
       paths: this.paths,
