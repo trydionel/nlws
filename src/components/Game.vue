@@ -19,6 +19,7 @@
           <td v-for="(letter, x) in row" :key="'col-' + x">
             <div class="game--letter"
               :class="cellClass(x, y)"
+              :style="transitionDelay(x, y)"
               @mousedown="startPath(letter, x, y)"
               @mouseover="updatePath(letter, x, y)"
               @mouseup="closePath()">
@@ -198,6 +199,17 @@ export default Vue.extend({
 
       if (isFound) {
         return 'game--found-char';
+      }
+    },
+    transitionDelay(x: number, y: number): object | undefined {
+      const inPath = (path: WordPath) => some(path, p => p.x == x && p.y == y);
+      const foundWord = find(this.found, (path, foundWord) => inPath(path));
+      const index = findIndex(foundWord, (p) => p.x == x && p.y == y);
+
+      if (foundWord) {
+        return {
+          animationDelay: `${index * 50}ms`
+        }
       }
     },
     listClass(word: string): string[] {
