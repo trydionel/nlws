@@ -55,7 +55,7 @@
         Play again
       </button>
 
-      <play-timer :started-at="startedAt" :live="!won" />
+      <play-timer class="game--timer" :started-at="startedAt" :live="!won" />
     </div>
 
     <a class="game--github" href="https://github.com/trydionel/nlws" title="View source on GitHub" target="_blank">
