@@ -10,12 +10,12 @@
 export default {
   props: {
     startedAt: Date,
-    live: Boolean
+    live: Boolean,
   },
   data(): { __pid: number | null; duration: number } {
     return {
       __pid: null,
-      duration: 0
+      duration: 0,
     };
   },
   beforeDestroy() {
@@ -30,8 +30,8 @@ export default {
           this.stop();
         }
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   computed: {
     seconds(): string {
@@ -40,7 +40,7 @@ export default {
     },
     minutes(): number {
       return Math.floor((this.duration / 1000) / 60);
-    }
+    },
   },
   methods: {
     start() {
@@ -53,9 +53,9 @@ export default {
       if (this.__pid) {
         window.clearInterval(this.__pid);
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style>

@@ -72,7 +72,7 @@ const storeOptions = {
     },
     getStartedAt(state: GridState) {
       return state.startedAt;
-    }
+    },
   },
   mutations: {
     setSeed(state: GridState, payload: number) {

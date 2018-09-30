@@ -17,7 +17,7 @@ const Topics = [
   'internet',
   'music',
   'audio',
-  'space'
+  'space',
 ];
 
 export class WordlistBuilder {
@@ -41,14 +41,14 @@ export class WordlistBuilder {
       return {
         count,
         topic,
-        words: Array.from(selected)
+        words: Array.from(selected),
       };
     }).catch((error: string) => {
       return {
         count,
         topic,
-        error
-      }
+        error,
+      };
     });
   }
 }

@@ -11,13 +11,13 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/game'
+      redirect: '/game',
     },
     {
       path: '/game/:seed?',
       name: 'game',
       component: Game,
-      props: true
+      props: true,
     },
     {
       path: '/test',

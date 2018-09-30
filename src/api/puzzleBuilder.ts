@@ -1,3 +1,5 @@
+/* tslint:disable:no-console */
+
 import { WordList, LetterGrid, Puzzle, WordPath, WordPathPosition, WordlistResult } from '@/game';
 import max from 'lodash/max';
 import range from 'lodash/range';
@@ -129,7 +131,8 @@ export class PuzzleBuilder {
       if (path.length === word.length) {
         // Commit all positions
         path.forEach((position) => {
-          let { x, y, char } = position;
+          // tslint:disable-next-line:no-shadowed-variable
+          const { x, y, char } = position;
           this.grid[y][x] = char.toUpperCase();
         });
         placed = true;

@@ -11,7 +11,7 @@ Vue.config.productionTip = false;
 
 Vue.use(VueAnalytics, {
   id: process.env.VUE_APP_GA_TOKEN,
-  router
+  router,
 });
 
 const app = new Vue({

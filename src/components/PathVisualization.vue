@@ -37,10 +37,10 @@ import { WordPath } from '@/game';
 
 export default Vue.extend({
   props: {
-    path: <PropOptions<WordPath>> {
+    path: {
       type: Array,
       required: true,
-    },
+    } as PropOptions<WordPath>,
   },
   data(): { radius: number; cell: number } {
     return {

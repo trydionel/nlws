@@ -105,13 +105,13 @@ export default Vue.extend({
   name: 'Game',
   components: {
     PathVisualization,
-    PlayTimer
+    PlayTimer,
   },
   props: {
     seed: {
       type: Number,
-      required: false
-    }
+      required: false,
+    },
   },
   filters: {
     json(input: any) {
@@ -123,7 +123,7 @@ export default Vue.extend({
       pathing: false,
       path: [],
       confetti: null,
-      tileSize: 52
+      tileSize: 52,
     };
   },
   computed: {
@@ -158,7 +158,7 @@ export default Vue.extend({
       return readWon(this.$store);
     },
     candidateWord(): string {
-      return this.candidate && this.candidate.map(p => p.char).join('');
+      return this.candidate && this.candidate.map((p) => p.char).join('');
     },
     startedAt(): Date {
       return readStartedAt(this.$store);
@@ -171,8 +171,8 @@ export default Vue.extend({
         // touchdown: this.startPath,
         // touchmove: this.updatePath,
         // touchup: this.closePath,
-      }
-    }
+      };
+    },
   },
   mounted() {
     this.newPuzzle();
@@ -183,7 +183,7 @@ export default Vue.extend({
         if (this.won) {
           this.confetti = new ConfettiGenerator({
             target: 'confetti-holder',
-            max: 200
+            max: 200,
           });
           this.confetti.render();
         } else {
@@ -191,8 +191,8 @@ export default Vue.extend({
             this.confetti.clear();
           }
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     eventToCoordinate(event: PointerEvent) {
@@ -242,7 +242,7 @@ export default Vue.extend({
       dispatchClosePath(this.$store);
     },
     cellClass(x: number, y: number): string | undefined {
-      const inPath = (path: WordPath) => some(path, p => p.x == x && p.y == y);
+      const inPath = (path: WordPath) => some(path, (p) => p.x === x && p.y === y);
       const isFound = some(this.found, (path, foundWord) => inPath(path));
 
       if (isFound) {
@@ -250,19 +250,19 @@ export default Vue.extend({
       }
     },
     transitionDelay(x: number, y: number): object | undefined {
-      const inPath = (path: WordPath) => some(path, p => p.x == x && p.y == y);
-      const foundWord = find(this.found, (path, foundWord) => inPath(path));
-      const index = findIndex(foundWord, (p) => p.x == x && p.y == y);
+      const inPath = (path: WordPath) => some(path, (p) => p.x === x && p.y === y);
+      const foundWord = find(this.found, (path, _) => inPath(path));
+      const index = findIndex(foundWord, (p) => p.x === x && p.y === y);
 
       if (foundWord) {
         return {
-          animationDelay: `${index * 50}ms`
-        }
+          animationDelay: `${index * 50}ms`,
+        };
       }
     },
     listClass(word: string): string[] {
       const classes = [
-        'game--word'
+        'game--word',
       ];
       const found = some(this.found, (path, foundWord) => foundWord.toLowerCase() === word.toLowerCase());
       if (found) {
@@ -284,9 +284,9 @@ export default Vue.extend({
         seed: this.seed,
         width,
         height,
-        wordCount
+        wordCount,
       });
-    }
+    },
   },
 });
 </script>
