@@ -33,13 +33,13 @@ Cypress.Commands.add("drawPath", { prevSubject: 'element' }, (subject, path, opt
     const y = path[i].y * 52 + 26;
 
     if (i === 0) {
-      $subject.trigger('pointerdown', { offsetX: x, offsetY: y });
+      $subject.trigger('pointerdown', x, y);
     }
 
-    $subject.trigger('pointermove', { offsetX: x, offsetY: y });
+    $subject.trigger('pointermove', x, y);
 
     if (i === len - 1 && !options.leaveOpen) {
-      $subject.trigger('pointerup', { offsetX: x, offsetY: y });
+      $subject.trigger('pointerup', x, y);
     }
   }
 
