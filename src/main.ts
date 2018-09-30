@@ -20,4 +20,7 @@ const app = new Vue({
   render: (h) => h(App),
 }).$mount('#app');
 
-window.app = app;
+interface DecoratedWindow extends Window {
+  app: Vue;
+}
+(window as DecoratedWindow).app = app;
