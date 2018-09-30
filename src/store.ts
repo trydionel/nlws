@@ -3,7 +3,7 @@ import Vuex, { ActionContext } from 'vuex';
 import { getStoreAccessors } from 'vuex-typescript';
 import { event } from 'vue-analytics';
 
-import { GridState, Puzzle, WordPathPosition, WordPath } from './types';
+import { GridState, Puzzle, WordPathPosition, WordPath, PuzzleConfiguration } from '@/game';
 import { WordlistBuilder } from '@/api/wordlistBuilder';
 import { PuzzleBuilder } from '@/api/puzzleBuilder';
 
@@ -124,17 +124,20 @@ const storeOptions = {
     },
   },
   actions: {
-    async createWordSearch(context: GridContext, payload:{ seed?: number; }): Promise<void> {
+    async createWordSearch(context: GridContext, payload: PuzzleConfiguration): Promise<void> {
       commitBuildingPuzzle(context);
       commitSetSeed(context, payload.seed || +new Date());
 
-      const wordlist = await new WordlistBuilder().get(10);
+      const wordCount = payload.wordCount || 10;
+      const wordlist = await new WordlistBuilder().get(wordCount);
       if (wordlist.error) {
         commitBuildingFailed(context);
         return;
       }
 
-      const puzzle = new PuzzleBuilder(wordlist).build();
+      const width = payload.width || 12;
+      const height = payload.height || 12;
+      const puzzle = await new PuzzleBuilder(wordlist).build(width, height);
       if (!puzzle) {
         commitBuildingFailed(context);
         return;
@@ -151,6 +154,11 @@ const storeOptions = {
       const { x, y, char } = payload;
 
       if (state.pathing) {
+        // FIXME: Not sure how this happens...
+        if (!char) {
+          return;
+        }
+
         if (state.candidate.length > 1) {
           const prev = state.candidate[state.candidate.length - 2];
           const isPreviousPosition = prev.x === x && prev.y === y;
@@ -158,17 +166,17 @@ const storeOptions = {
             commitRemoveFromPath(context);
             return;
           }
+        }
 
-          const last = state.candidate[state.candidate.length - 1];
-          const isOutOfReach = Math.abs(last.x - x) > 1 || Math.abs(last.y - y) > 1;
-          if (isOutOfReach) {
-            return;
-          }
+        const last = state.candidate[state.candidate.length - 1];
+        const isOutOfReach = Math.abs(last.x - x) > 1 || Math.abs(last.y - y) > 1;
+        if (isOutOfReach) {
+          return;
+        }
 
-          const inPath = some(state.candidate, (p) => p.x === x && p.y === y);
-          if (inPath) {
-            return;
-          }
+        const inPath = some(state.candidate, (p) => p.x === x && p.y === y);
+        if (inPath) {
+          return;
         }
 
         commitAddToPath(context, payload);
@@ -204,7 +212,12 @@ const storeOptions = {
       // _anywhere_, not just in the expected position.
       //
       const checkCandidateSimple = (solution: WordPath, candidate: WordPath): boolean => {
-        return solution.map((p) => p.char.toLowerCase()).join() === candidate.map((p) => p.char.toLowerCase()).join();
+        // FIXME: Somehow the candidate is getting positions that don't have associated chars...
+        try {
+          return solution.map((p) => p.char.toLowerCase()).join() === candidate.map((p) => p.char.toLowerCase()).join();
+        } catch (e) {
+          return false;
+        }
       };
 
       const foundPath = find(puzzle.paths, (solution: WordPath) => checkCandidateSimple(solution, state.candidate));

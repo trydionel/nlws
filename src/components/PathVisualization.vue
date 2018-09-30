@@ -33,7 +33,7 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue';
-import { WordPath } from '@/types';
+import { WordPath } from '@/game';
 
 export default Vue.extend({
   props: {

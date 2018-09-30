@@ -1,5 +1,5 @@
 import { sample } from './random';
-import { WordlistResult } from '@/types';
+import { WordlistResult } from '@/game';
 
 interface DatamuseWord {
   word: string;

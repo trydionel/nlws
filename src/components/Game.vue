@@ -13,16 +13,13 @@
       </transition-group>
     </div>
 
-    <div class="game--table">
+    <div class="game--table" v-on="listeners" touch-action="none">
       <table>
         <tr v-for="(row, y) in grid" :key="'row-' + y">
           <td v-for="(letter, x) in row" :key="'col-' + x">
             <div class="game--letter"
               :class="cellClass(x, y)"
-              :style="transitionDelay(x, y)"
-              @mousedown="startPath(letter, x, y)"
-              @mouseover="updatePath(letter, x, y)"
-              @mouseup="closePath()">
+              :style="transitionDelay(x, y)">
               {{ letter }}
             </div>
           </td>
@@ -67,7 +64,10 @@
 
 <script lang="ts">
 import Vue from 'vue';
+import 'pepjs';
+
 import {
+  commitFoundWord,
   dispatchClosePath,
   dispatchCreateWordSearch,
   dispatchStartPath,
@@ -77,15 +77,14 @@ import {
   readErrored,
   readFoundWords,
   readLetterGrid,
-  readWordList,
-  readWordPaths,
-  readWon,
   readPuzzle,
   readStartedAt,
-commitFoundWord,
+  readWon,
+  readWordList,
+  readWordPaths,
 } from '@/store';
 import { Store } from 'vuex';
-import { GridState, WordList, LetterGrid, WordPath, WordPathPosition, Puzzle } from '@/types';
+import { GridState, WordList, LetterGrid, WordPath, WordPathPosition, Puzzle } from '@/game';
 import PathVisualization from './PathVisualization.vue';
 import PlayTimer from './PlayTimer.vue';
 import some from 'lodash/some';
@@ -99,6 +98,7 @@ interface ComponentData {
   pathing: boolean;
   path: WordPath;
   confetti: any;
+  tileSize: number;
 }
 
 export default Vue.extend({
@@ -123,6 +123,7 @@ export default Vue.extend({
       pathing: false,
       path: [],
       confetti: null,
+      tileSize: 52
     };
   },
   computed: {
@@ -161,6 +162,16 @@ export default Vue.extend({
     },
     startedAt(): Date {
       return readStartedAt(this.$store);
+    },
+    listeners(): object {
+      return {
+        pointerdown: this.startPath,
+        pointermove: this.updatePath,
+        pointerup: this.closePath,
+        // touchdown: this.startPath,
+        // touchmove: this.updatePath,
+        // touchup: this.closePath,
+      }
     }
   },
   mounted() {
@@ -184,13 +195,50 @@ export default Vue.extend({
     }
   },
   methods: {
-    startPath(char: string, x: number, y: number) {
-      dispatchStartPath(this.$store, { x, y, char });
+    eventToCoordinate(event: PointerEvent) {
+      // Get indexed position (x, y) relative to top-left of game table
+      //
+      const tileSize = this.tileSize;
+      const { offsetX, offsetY } = event;
+      const x = Math.floor(offsetX / tileSize);
+      const y = Math.floor(offsetY / tileSize);
+
+      // Check that the cursor is within a circle of radius R around the
+      // center of the tile at indexed position (x, y)
+      //
+      const tileX = x * tileSize;
+      const tileY = y * tileSize;
+      const centerX = tileX + 0.5 * tileSize;
+      const centerY = tileY + 0.5 * tileSize;
+      const distance = Math.sqrt(Math.pow(centerX - offsetX, 2) + Math.pow(centerY - offsetY, 2));
+
+      if (distance < 0.5 * tileSize) {
+        return { x, y };
+      }
     },
-    updatePath(char: string, x: number, y: number) {
-      dispatchUpdatePath(this.$store, { x, y, char });
+    startPath(event: PointerEvent) {
+      event.preventDefault();
+
+      const coordinates = this.eventToCoordinate(event);
+      if (coordinates) {
+        const { x, y } = coordinates;
+        const char = this.grid[y][x];
+        dispatchStartPath(this.$store, { x, y, char });
+      }
     },
-    closePath() {
+    updatePath(event: PointerEvent) {
+      event.preventDefault();
+
+      const coordinates = this.eventToCoordinate(event);
+      if (coordinates) {
+        const { x, y } = coordinates;
+        const char = this.grid[y][x];
+        dispatchUpdatePath(this.$store, { x, y, char });
+      }
+    },
+    closePath(event: PointerEvent) {
+      event.preventDefault();
+
       dispatchClosePath(this.$store);
     },
     cellClass(x: number, y: number): string | undefined {
@@ -224,7 +272,20 @@ export default Vue.extend({
       return classes;
     },
     newPuzzle(): void {
-      dispatchCreateWordSearch(this.$store, { seed: this.seed });
+      // Determine puzzle size based on UA dimensions. Work around Cypress' handling of pixel ratio.
+      //
+      const pixelRatio = 1;
+      const maxCells = (size: number) => Math.min(Math.floor((size - 40) / this.tileSize), 12); // upper cap at 12x12
+      const width = maxCells(window.innerWidth / pixelRatio);
+      const height = maxCells(window.innerHeight / pixelRatio - 200); // 200px buffer for header and word list
+      const wordCount = 3 + Math.floor(width * height / 15);
+
+      dispatchCreateWordSearch(this.$store, {
+        seed: this.seed,
+        width,
+        height,
+        wordCount
+      });
     }
   },
 });
@@ -234,11 +295,21 @@ export default Vue.extend({
 .game {
   font-family: 'Nunito', sans-serif;
   font-size: 24px;
+  padding: 20px;
 
   display: grid;
-  grid-template-columns: [main-start] 2fr [table-start] 624px [table-end sidebar-start] 1fr [sidebar-end] 1fr [main-end];
-  grid-template-rows: 100px auto;
-  grid-gap: 0 20px;
+  grid-gap: 20px;
+  grid-template-areas:
+    "header"
+    "table"
+    "sidebar";
+  justify-content: center;
+
+  @media screen and (min-width: 900px) {
+    grid-template-areas:
+      "header header"
+      "table sidebar";
+  }
 
   .game--canvas {
     position: absolute;
@@ -257,11 +328,17 @@ export default Vue.extend({
   }
 
   .game--header {
-    grid-column: main-start / main-end;
+    grid-area: header;
     text-align: center;
     align-content: center;
     color: white;
-    line-height: 100px;
+    line-height: 30px;
+    height: 30px;
+
+    @media screen and (min-width: 900px) {
+      line-height: 100px;
+      height: 100px;
+    }
 
     .game--header-char {
       font-size: 2.4rem;
@@ -284,15 +361,14 @@ export default Vue.extend({
 
   .game--table {
     grid-area: table;
-    user-select: none;
-    margin: 0 auto;
     position: relative;
-    background-color: white;
-    border-radius: 4px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 3px 6px rgba(0, 0, 0, 0.12);
-    margin-bottom: 100px;
 
     table {
+      user-select: none;
+      border-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 3px 6px rgba(0, 0, 0, 0.12);
+      background-color: white;
+      touch-action: none;
       border-collapse: collapse;
       text-align: center;
     }
@@ -313,6 +389,10 @@ export default Vue.extend({
       line-height: $hit;
       border-radius: 100%;
     }
+
+    table, tr, th, td, .game--letter {
+      pointer-events: none;
+    }
   }
 
   .game--found-char {
@@ -328,23 +408,45 @@ export default Vue.extend({
     grid-area: sidebar;
     color: white;
     text-shadow: 0 1px rgba(0, 0, 0, 0.25);
+    display: grid;
+    grid-auto-rows: min-content min-content auto;
+    grid-template-areas:
+      "topic words"
+      "progress words"
+      "timer words";
+
+    @media screen and (min-width: 900px) {
+      grid-template-areas:
+        "topic"
+        "progress"
+        "words"
+        "timer";
+    }
 
     .game--topic {
-      margin-top: 10px;
-      margin-bottom: 0;
+      grid-area: topic;
+      margin: 0;
       letter-spacing: 0.5px;
+      line-height: 1;
     }
 
     .game--progress {
+      grid-area: progress;
       margin: 0;
       margin-bottom: 1em;
       font-size: 0.85rem;
     }
 
     ul {
+      grid-area: words;
       list-style-type: none;
       padding: 0;
-      margin: 0 0 2em;
+      margin: 0;
+
+      column-count: 2;
+      @media screen and (min-width: 900px) {
+        column-count: 1;
+      }
     }
 
     button {
@@ -362,6 +464,11 @@ export default Vue.extend({
       &:focus { outline: none; }
       &:hover { background-color: rgba(255, 255, 255, 0.1); }
       &:active { background-color: rgba(255, 255, 255, 0.2); }
+    }
+
+    .game--timer {
+      grid-area: timer;
+      align-self: end;
     }
   }
 

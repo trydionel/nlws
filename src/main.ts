@@ -7,14 +7,15 @@ import './registerServiceWorker';
 
 Vue.config.productionTip = false;
 
-console.log(process.env.VUE_APP_GA_TOKEN);
 Vue.use(VueAnalytics, {
   id: process.env.VUE_APP_GA_TOKEN,
   router
 });
 
-new Vue({
+const app = new Vue({
   router,
   store,
   render: (h) => h(App),
 }).$mount('#app');
+
+window.app = app;

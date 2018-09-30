@@ -23,3 +23,25 @@
 //
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+Cypress.Commands.add("drawPath", { prevSubject: 'element' }, (subject, path, options = {}) => {
+  const len = path.length;
+  const $subject = cy.wrap(subject);
+
+  for (let i = 0; i < len; i++) {
+    const x = path[i].x * 52 + 26;
+    const y = path[i].y * 52 + 26;
+
+    if (i === 0) {
+      $subject.trigger('pointerdown', { offsetX: x, offsetY: y });
+    }
+
+    $subject.trigger('pointermove', { offsetX: x, offsetY: y });
+
+    if (i === len - 1 && !options.leaveOpen) {
+      $subject.trigger('pointerup', { offsetX: x, offsetY: y });
+    }
+  }
+
+  return $subject;
+});

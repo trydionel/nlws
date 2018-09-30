@@ -1,4 +1,4 @@
-import { WordList, LetterGrid, Puzzle, WordPath, WordPathPosition, WordlistResult } from '@/types';
+import { WordList, LetterGrid, Puzzle, WordPath, WordPathPosition, WordlistResult } from '@/game';
 import max from 'lodash/max';
 import range from 'lodash/range';
 import some from 'lodash/some';
@@ -10,26 +10,28 @@ export class PuzzleBuilder {
   private topic: string;
   private words: WordList;
   private grid: LetterGrid;
-  private size: number;
+  private width: number;
+  private height: number;
   private paths: WordPath[];
 
   constructor(wordlist: WordlistResult) {
     this.topic = wordlist.topic;
     this.words = wordlist.words!;
-    this.size = 0;
+    this.width = 0;
+    this.height = 0;
     this.grid = [[]];
     this.paths = [];
   }
 
-  public build(): Puzzle | null {
+  public async build(width: number, height: number): Promise<Puzzle | null> {
     const longestWord = max(this.words.map((word) => word.length));
     if (!longestWord) {
       return null;
     }
 
     try {
-      this.initGrid(12);
-      this.placeWords();
+      this.initGrid(width, height);
+      await this.placeWords();
       this.fillBlanks();
     } catch (e) {
       console.error(e);
@@ -44,30 +46,31 @@ export class PuzzleBuilder {
     };
   }
 
-  private initGrid(size: number) {
+  private initGrid(width: number, height: number) {
     const grid: string[][] = [];
 
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < height; i++) {
       const row: string[] = [];
-      for (let j = 0; j < size; j++) {
+      for (let j = 0; j < width; j++) {
         row.push('');
       }
       grid.push(row);
     }
 
-    this.size = size;
+    this.width = width;
+    this.height = height;
     this.grid = grid;
   }
 
-  private placeWords() {
-    this.words.forEach((word) => {
-      const path = this.placeWord(word);
+  private async placeWords() {
+    for (const word of this.words) {
+      const path = await this.placeWord(word);
       this.paths.push(path);
-    });
+    }
   }
 
-  private placeWord(word: string): WordPath {
-    const maxAttempts = 250;
+  private async placeWord(word: string): Promise<WordPath> {
+    const maxAttempts = 1000;
     let placed = false;
     let attempts = 0;
     let i = 0;
@@ -78,9 +81,9 @@ export class PuzzleBuilder {
     let angle: number;
     let path: WordPath = [];
 
-    while (!placed && attempts < maxAttempts) {
-      x = Math.floor(this.size * Random.number());
-      y = Math.floor(this.size * Random.number());
+    const attempt = async () => {
+      x = Math.floor(this.width * Random.number());
+      y = Math.floor(this.height * Random.number());
       path = [];
       theta = 0;
       angle = theta * Math.PI / 4;
@@ -89,7 +92,7 @@ export class PuzzleBuilder {
 
       while (i < word.length) {
         // Out of bounds
-        if (x < 0 || x >= this.size || y < 0 || y >= this.size) {
+        if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
           console.log('out of bounds');
           break;
         }
@@ -131,6 +134,10 @@ export class PuzzleBuilder {
       }
 
       attempts += 1;
+    };
+
+    while (!placed && attempts < maxAttempts) {
+      await attempt();
     }
 
     if (!placed) {
@@ -142,11 +149,12 @@ export class PuzzleBuilder {
   }
 
   private fillBlanks() {
-    const size = this.size;
+    const width = this.width;
+    const height = this.height;
     const grid = this.grid;
 
-    for (let y = 0; y < size; y++) {
-      for (let x = 0; x < size; x++) {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
         const letter = grid[y][x];
         if (letter === '') {
           grid[y][x] = sample(Alphabet) as string;

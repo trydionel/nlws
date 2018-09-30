@@ -33,3 +33,10 @@ export interface GridState {
   building: boolean;
   won: boolean;
 }
+
+export interface PuzzleConfiguration {
+  seed?: number;
+  width: number;
+  height: number;
+  wordCount: number;
+}
