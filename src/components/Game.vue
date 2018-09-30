@@ -7,7 +7,7 @@
       <span v-if="errored">Failed to build puzzle!</span>
 
       <transition-group name="pop" tag="div">
-        <span v-for="position in candidate" :key="position.char" class="game--header-char">
+        <span v-for="(position, index) in candidate" :key="`candidate-${index}`" class="game--header-char">
           {{ position.char }}
         </span>
       </transition-group>

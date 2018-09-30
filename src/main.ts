@@ -3,7 +3,9 @@ import VueAnalytics from 'vue-analytics';
 import App from './App.vue';
 import router from './router';
 import store from './store';
-import './registerServiceWorker';
+
+// Disable service worker for now... seems to be causing refresh issues
+// import './registerServiceWorker';
 
 Vue.config.productionTip = false;
 

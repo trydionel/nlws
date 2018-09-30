@@ -13,14 +13,16 @@ export class PuzzleBuilder {
   private width: number;
   private height: number;
   private paths: WordPath[];
+  private debug: boolean;
 
-  constructor(wordlist: WordlistResult) {
+  constructor(wordlist: WordlistResult, options: { debug?: boolean } = {}) {
     this.topic = wordlist.topic;
     this.words = wordlist.words!;
     this.width = 0;
     this.height = 0;
     this.grid = [[]];
     this.paths = [];
+    this.debug = !!options.debug;
   }
 
   public async build(width: number, height: number): Promise<Puzzle | null> {
@@ -88,29 +90,29 @@ export class PuzzleBuilder {
       theta = 0;
       angle = theta * Math.PI / 4;
       i = 0;
-      console.log(`Attempting to place ${word} starting at ${x},${y}`);
+      this.log(`Attempting to place ${word} starting at ${x},${y}`);
 
       while (i < word.length) {
         // Out of bounds
         if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
-          console.log('out of bounds');
+          this.log('out of bounds');
           break;
         }
 
         // Position already used in path
         if (path.length > 0 && some(path, (p) => p.x === x && p.y === y)) {
-          console.log(`position ${x},${y} already used`);
+          this.log(`position ${x},${y} already used`);
           break;
         }
 
         // Space not valid
         char = word[i];
         if (this.grid[y][x] !== '' && this.grid[y][x] !== word[i]) {
-          console.log('space not valid');
+          this.log('space not valid');
           break;
         }
 
-        console.log(`placed ${char} at ${x},${y} from ${theta}`);
+        this.log(`placed ${char} at ${x},${y} from ${theta}`);
         path.push({ x, y, char, angle });
 
         // Only 60% chance of changing directions for next character
@@ -144,7 +146,7 @@ export class PuzzleBuilder {
       throw new Error(`Failed to place word ${word} in ${maxAttempts} attempts`);
     }
 
-    console.log(`Completed path in ${attempts} attempts`);
+    this.log(`Completed path in ${attempts} attempts`);
     return path;
   }
 
@@ -160,6 +162,12 @@ export class PuzzleBuilder {
           grid[y][x] = sample(Alphabet) as string;
         }
       }
+    }
+  }
+
+  private log(message: any) {
+    if (this.debug) {
+      console.log(message);
     }
   }
 }
