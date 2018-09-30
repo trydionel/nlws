@@ -39,4 +39,5 @@ export interface PuzzleConfiguration {
   width: number;
   height: number;
   wordCount: number;
+  attempts?: number;
 }

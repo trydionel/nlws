@@ -128,10 +128,23 @@ const storeOptions = {
       commitBuildingPuzzle(context);
       commitSetSeed(context, payload.seed || +new Date());
 
+      const MAX_ATTEMPTS = 5;
+      const attempts = payload.attempts || 0;
+      const failOrRetry = () => {
+        if (attempts > MAX_ATTEMPTS) {
+          commitBuildingFailed(context);
+        } else {
+          dispatchCreateWordSearch(context, {
+            ...payload,
+            attempts: attempts + 1,
+          });
+        }
+      };
+
       const wordCount = payload.wordCount || 10;
       const wordlist = await new WordlistBuilder().get(wordCount);
       if (wordlist.error) {
-        commitBuildingFailed(context);
+        failOrRetry();
         return;
       }
 
@@ -139,7 +152,7 @@ const storeOptions = {
       const height = payload.height || 12;
       const puzzle = await new PuzzleBuilder(wordlist).build(width, height);
       if (!puzzle) {
-        commitBuildingFailed(context);
+        failOrRetry();
         return;
       }
 

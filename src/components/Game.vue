@@ -276,7 +276,7 @@ export default Vue.extend({
       const pixelRatio = 1;
       const maxCells = (size: number) => Math.min(Math.floor((size - 40) / this.tileSize), 12); // upper cap at 12x12
       const width = maxCells(window.innerWidth / pixelRatio);
-      const height = maxCells(window.innerHeight / pixelRatio - 200); // 200px buffer for header and word list
+      const height = maxCells(window.innerHeight / pixelRatio - 150); // 150px buffer for header and word list
       const wordCount = 3 + Math.floor(width * height / 15);
 
       dispatchCreateWordSearch(this.$store, {
