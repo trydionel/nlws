@@ -168,9 +168,6 @@ export default Vue.extend({
         pointerdown: this.startPath,
         pointermove: this.updatePath,
         pointerup: this.closePath,
-        // touchdown: this.startPath,
-        // touchmove: this.updatePath,
-        // touchup: this.closePath,
       };
     },
   },
@@ -199,7 +196,9 @@ export default Vue.extend({
       // Get indexed position (x, y) relative to top-left of game table
       //
       const tileSize = this.tileSize;
-      const { offsetX, offsetY } = event;
+      const target = event.target as HTMLTableElement;
+      const offsetX = event.pageX - target.offsetLeft;
+      const offsetY = event.pageY - target.offsetTop;
       const x = Math.floor(offsetX / tileSize);
       const y = Math.floor(offsetY / tileSize);
 
