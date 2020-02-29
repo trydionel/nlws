@@ -15,6 +15,10 @@ jobs:
     - uses: cypress-io/github-action@v1
       with:
         start: yarn run serve
-        wait-on: 'http://localhost:8081'
+        wait-on: 'http://localhost:8080'
         browser: chrome
         headless: true
+        record: true
+      env:
+        CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
