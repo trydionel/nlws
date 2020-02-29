@@ -4,6 +4,9 @@
 describe('Word search in desktop mode', () => {
   const getStore = () => cy.window().its('app.$store');
   const getPath = (index = 0) => {
+    // Something changed so that the Vuex state isn't ready as quickly as it
+    // used to be. Just hack in a fix for now.
+    cy.wait(10);
     return getStore().then(store => {
       return store.state.puzzle.paths[index]
     });
