@@ -4,6 +4,9 @@
 describe('Word search in mobile mode', () => {
   const getStore = () => cy.window().its('app.$store');
   const getPath = (index = 0) => {
+    // Something changed so that the Vuex state isn't ready as quickly as it
+    // used to be. Just hack in a fix for now.
+    cy.wait(10);
     return getStore().then(store => {
       return store.state.puzzle.paths[index]
     });
@@ -16,8 +19,8 @@ describe('Word search in mobile mode', () => {
     cy.visit('/game/999');
   });
 
-  it('has a 6x8 letter grid', () => {
-    cy.get('.game--table tr').should('have.length', 8);
+  it('has a 6x9 letter grid', () => {
+    cy.get('.game--table tr').should('have.length', 9);
     cy.get('.game--table tr:first-child td').should('have.length', 6);
   });
 

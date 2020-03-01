@@ -9,10 +9,12 @@ import store from './store';
 
 Vue.config.productionTip = false;
 
-Vue.use(VueAnalytics, {
-  id: process.env.VUE_APP_GA_TOKEN,
-  router,
-});
+if (process.env.VUE_APP_GA_TOKEN) {
+  Vue.use(VueAnalytics, {
+    id: process.env.VUE_APP_GA_TOKEN,
+    router,
+  });
+}
 
 const app = new Vue({
   router,
@@ -20,7 +22,9 @@ const app = new Vue({
   render: (h) => h(App),
 }).$mount('#app');
 
-interface DecoratedWindow extends Window {
-  app: Vue;
+declare global {
+  interface Window {
+    app: Vue;
+  }
 }
-(window as DecoratedWindow).app = app;
+window.app = app;
