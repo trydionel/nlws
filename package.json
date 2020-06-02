@@ -39,5 +39,8 @@
     "sass-loader": "^8.0.0",
     "typescript": "^3.0.0",
     "vue-template-compiler": "^2.6.11"
+  },
+  "resolutions": {
+    "cypress": "^4.4.0"
   }
 }
