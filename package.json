@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "confetti-js": "^0.0.13",
-    "lodash": "^4.17.13",
+    "lodash": "^4.17.19",
     "normalize.css": "^8.0.0",
     "pcg-random": "^1.0.0",
     "pepjs": "^0.4.3",
