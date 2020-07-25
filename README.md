@@ -1,5 +1,7 @@
 # nlws
 
+[![nlws](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/nqhotp/master&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/nqhotp/runs)
+
 ## Project setup
 ```
 yarn install
